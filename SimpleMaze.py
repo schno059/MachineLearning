@@ -164,16 +164,27 @@ def train_pick_action(game, maze, player, opponent):
     #   code is provided only so you can understand the problem (and maybe
     #   play with it), you should cut this code out once you implement
     #   your learning system.
+    # print("The maze:")
+    # show_maze(game, maze, player, opponent)
+    # print()
+    # while True:
+    #     s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
+    #     the_action = int(input(s))
+    #     print(f"Action is {the_action}")
+    #     if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
+    #         break
+    # *** CODE TO REMOVE *** - end
+
     print("The maze:")
     show_maze(game, maze, player, opponent)
     print()
     while True:
         s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-        the_action = int(input(s))
+        the_action = int(0)
         print(f"Action is {the_action}")
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
-    # *** CODE TO REMOVE *** - end
+
     return the_action
 
 
@@ -190,16 +201,27 @@ def test_pick_action(game, maze, player, opponent):
     #   code is provided only so you can understand the problem (and maybe
     #   play with it), you should cut this code out once you implement
     #   your learning system.
+    # print("The maze:")
+    # show_maze(game, maze, player, opponent)
+    # print()
+    # while True:
+    #     s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
+    #     the_action = int(input(s))
+    #     print(f"Action is {the_action}")
+    #     if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
+    #         break
+    # *** CODE TO REMOVE *** - end
+
     print("The maze:")
     show_maze(game, maze, player, opponent)
     print()
     while True:
         s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-        the_action = int(input(s))
+        the_action = int(0)
         print(f"Action is {the_action}")
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
-    # *** CODE TO REMOVE *** - end
+
     return the_action
 
 
