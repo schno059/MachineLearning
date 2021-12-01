@@ -161,8 +161,8 @@ def execute_action(game, maze, player, opponent, action, table):
         return game.REWARD_TIME_EXPIRED
 
     max_function = max(0.9 * table[player.x][player.y][opponent.x][opponent.y])
-    print(f"table[{player.x}][{player.y}][{opponent.x}][{opponent.y}][{action}] = {max_function}")
-    table[player.x][player.y][opponent.x][opponent.y][action] = max_function
+    print(f"table[{prev_player_x}][{prev_player_y}][{prev_opponent_x}][{prev_opponent_y}][{action}] = {max_function}")
+    table[prev_player_x][prev_player_y][prev_opponent_x][prev_opponent_y][action] = max_function
     return game.REWARD_OTHER
 
 
