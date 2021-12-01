@@ -39,7 +39,20 @@ def setupMaze():
         for y in range(2, 7):
             maze[x, y] = 0
     maze[4, 4] = 1
+    print("maze setup")
+    print(maze)
     return maze
+
+
+def setupTable():
+    table = numpy.zeros((8, 8, 8, 8, 5), dtype=int)
+    # for x in range(2, 7):
+    #     for y in range(2, 7):
+    #         table[x, y] = 0
+    # table[4, 4] = 0
+    # print("table setup")
+    # print(table)
+    return table
 
 
 def initialize(game, maze, player, opponent):
@@ -121,17 +134,35 @@ def opponent_move(game, maze, player, opponent):
     return 0
 
 
-def execute_action(game, maze, player, opponent, action):
+def execute_action(game, maze, player, opponent, action, table):
+    # Previous Board State
+    prev_player_x = player.x
+    prev_player_y = player.y
+    prev_opponent_x = opponent.x
+    prev_opponent_y = opponent.y
+
     move_result = make_player_move(game, maze, player, opponent, action)
     if move_result == 1:
+        print(f"table[{prev_player_x}][{prev_player_y}][{prev_opponent_x}][{prev_opponent_y}][{action}] = {game.REWARD_FOUND_GOAL}")
+        table[prev_player_x][prev_player_y][prev_opponent_x][prev_opponent_y][action] = game.REWARD_FOUND_GOAL
         return game.REWARD_FOUND_GOAL
     elif move_result == -1:
+        print(
+            f"table[{prev_player_x}][{prev_player_y}][{prev_opponent_x}][{prev_opponent_y}][{action}] = {game.REWARD_CAUGHT}")
+        table[prev_player_x][prev_player_y][prev_opponent_x][prev_opponent_y][action] = game.REWARD_CAUGHT
         return game.REWARD_CAUGHT
     game.num_steps += 1
     if opponent_move(game, maze, player, opponent) == 1:
+        print(
+            f"table[{prev_player_x}][{prev_player_y}][{prev_opponent_x}][{prev_opponent_y}][{action}] = {game.REWARD_CAUGHT}")
+        table[prev_player_x][prev_player_y][prev_opponent_x][prev_opponent_y][action] = game.REWARD_CAUGHT
         return game.REWARD_CAUGHT
     if game.num_steps >= game.MAX_STEPS:
         return game.REWARD_TIME_EXPIRED
+
+    max_function = max(0.9 * table[player.x][player.y][opponent.x][opponent.y])
+    print(f"table[{player.x}][{player.y}][{opponent.x}][{opponent.y}][{action}] = {max_function}")
+    table[player.x][player.y][opponent.x][opponent.y][action] = max_function
     return game.REWARD_OTHER
 
 
@@ -151,7 +182,7 @@ def show_maze(game, maze, player, opponent):
         print()
 
 
-def train_pick_action(game, maze, player, opponent):
+def train_pick_action(game, maze, player, opponent, table):
     # Add code here to construct a state number from the state information
     #   (player_point and opponent_point)
     # Use your state to pick an action by looking up the value of actions
@@ -183,7 +214,7 @@ def test_pick_action(game, maze, player, opponent):
     print("The maze:")
     show_maze(game, maze, player, opponent)
     # print(maze)
-    print(player.x, player.y, opponent.x, opponent.y)
+    print(player.x, player.y, "\n", opponent.x, opponent.y)
     print()
     while True:
         s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
@@ -207,14 +238,15 @@ def main(num_train_games, num_test_games):
     player = Point(2, 2)
     opponent = Point(2, 2)
     maze = setupMaze()
+    table = setupTable()
 
     for i in range(1, num_train_games + 1):
         print(f"Training game {i}")
         initialize(game, maze, player, opponent)
         game_reward = 0.0
         while True:
-            action = train_pick_action(game, maze, player, opponent)
-            reward = execute_action(game, maze, player, opponent, action)
+            action = train_pick_action(game, maze, player, opponent, table)
+            reward = execute_action(game, maze, player, opponent, action, table)
             game_reward = game_reward + reward
             train_learner(game, action, reward)
             if reward != game.REWARD_OTHER:
@@ -229,13 +261,14 @@ def main(num_train_games, num_test_games):
         game_reward = 0.0
         while True:
             action = test_pick_action(game, maze, player, opponent)
-            reward = execute_action(game, maze, player, opponent, action)
+            reward = execute_action(game, maze, player, opponent, action, table)
             game_reward = game_reward + reward
             if reward != game.REWARD_OTHER:
                 break
         print(f"Reward for test game {i} is {game_reward}")
         total_reward = total_reward + game_reward
     print(f"Average test reward = {(total_reward / num_test_games)}")
+    # print(table)
 
 
 if len(sys.argv) != 3:
