@@ -159,28 +159,12 @@ def train_pick_action(game, maze, player, opponent):
     #   pick the highest valued action, otherwise pick a random action
     #   (this is one way to trade off exploration exploitation)
 
-    # *** CODE TO REMOVE *** - start
-    # The code below allows a user to interactively select the action, this
-    #   code is provided only so you can understand the problem (and maybe
-    #   play with it), you should cut this code out once you implement
-    #   your learning system.
-    # print("The maze:")
-    # show_maze(game, maze, player, opponent)
-    # print()
-    # while True:
-    #     s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-    #     the_action = int(input(s))
-    #     print(f"Action is {the_action}")
-    #     if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
-    #         break
-    # *** CODE TO REMOVE *** - end
-
     print("The maze:")
     show_maze(game, maze, player, opponent)
     print()
     while True:
         s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-        the_action = int(0)
+        the_action = random.randint(game.MIN_ACTION, game.MAX_ACTION)
         print(f"Action is {the_action}")
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
@@ -196,28 +180,14 @@ def test_pick_action(game, maze, player, opponent):
     #   one action has the highest value pick amongst those actions
     #   randomly)
 
-    # *** CODE TO REMOVE *** - start
-    # The code below allows a user to interactively select the action, this
-    #   code is provided only so you can understand the problem (and maybe
-    #   play with it), you should cut this code out once you implement
-    #   your learning system.
-    # print("The maze:")
-    # show_maze(game, maze, player, opponent)
-    # print()
-    # while True:
-    #     s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-    #     the_action = int(input(s))
-    #     print(f"Action is {the_action}")
-    #     if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
-    #         break
-    # *** CODE TO REMOVE *** - end
-
     print("The maze:")
     show_maze(game, maze, player, opponent)
+    # print(maze)
+    print(player.x, player.y, opponent.x, opponent.y)
     print()
     while True:
         s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-        the_action = int(0)
+        the_action = random.randint(game.MIN_ACTION, game.MAX_ACTION)
         print(f"Action is {the_action}")
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
