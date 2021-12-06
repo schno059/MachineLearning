@@ -32,9 +32,9 @@ class Game:
 
         self.num_steps = 1
 
-        self.p_state = -1
-        self.state = -1
-        self.learner = numpy.zeros((8889, 5), dtype=float)
+        self.p_state = -1  # previous maze state
+        self.state = -1  # current maze state
+        self.learner = numpy.zeros((8889, 5), dtype=float)  # learning table
 
 
 def setupMaze():
@@ -58,6 +58,8 @@ def initialize(game, maze, player, opponent):
         opponent.y = random.choice([2, 3, 4, 5, 6])
         if (maze[opponent.x, opponent.y] == 0) and ((opponent.x != player.x) or (opponent.y != player.y)):
             break
+
+    # initialize state number as concatenation of all coordinate numbers
     game.state = (1000 * player.x) + (100 * player.y) + (10 * opponent.x) + opponent.y
     game.p_state = game.state
 
@@ -157,24 +159,8 @@ def show_maze(game, maze, player, opponent):
         print()
 
 
-def train_pick_action(game, maze, player, opponent):
-    # Add code here to construct a state number from the state information
-    #   (player_point and opponent_point)
-    # Use your state to pick an action by looking up the value of actions
-    #   for your state, for some large percentage of the time (e.g., 97%)
-    #   pick the highest valued action, otherwise pick a random action
-    #   (this is one way to trade off exploration exploitation)
-
-    print(f"\nThe maze ({player.x},{player.y}) ({opponent.x},{opponent.y})")
-    show_maze(game, maze, player, opponent)
-    print()
+def train_pick_action(game):
     while True:
-        for action in range(5):  # action value list
-            print(f"{action} -> {game.learner[game.state][action]}")
-        s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-
-        # the_action = int(input(s))  # manual control
-
         pick_max_rate = 0.97
         lst = game.learner[game.state]
         max_ = max(lst)
@@ -182,40 +168,17 @@ def train_pick_action(game, maze, player, opponent):
             the_action = random.choice([i for i in range(len(lst)) if lst[i] == max_])
         else:
             the_action = random.randint(0, 4)
-        print(s + str(the_action))
-
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
 
     return the_action
 
 
-def test_pick_action(game, maze, player, opponent):
-    # Add code here to construct a state number from the state information
-    #   (player_point and opponent_point)
-    # Use your state to pick an action by looking up the value of actions
-    #   for your state, and picking the highest valued action (if more than
-    #   one action has the highest value pick amongst those actions
-    #   randomly)
-
-    print(f"\nThe maze ({player.x},{player.y}) ({opponent.x},{opponent.y})")
-    show_maze(game, maze, player, opponent)
-    print()
+def test_pick_action(game):
     while True:
-        for action in range(5):  # action value list
-            print(f"{action} -> {game.learner[game.state][action]}")
-        s = f"Action ({game.MIN_ACTION}-{game.MAX_ACTION}): "
-
-        # the_action = int(input(s))  # manual control
-
-        # the_action = random.randint(0, 4)  # random baseline
-        # print(s + str(the_action))
-
         lst = game.learner[game.state]  # pick a random maximum
         max_ = max(lst)
         the_action = random.choice([i for i in range(len(lst)) if lst[i] == max_])
-        print(s + str(the_action))
-
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
 
@@ -223,19 +186,13 @@ def test_pick_action(game, maze, player, opponent):
 
 
 def train_learner(game, action, reward):
-    # Update your learner model with the state (player_point,opponent_point),
-    #   action, and reward action provided, note that you will likely have
-    #   to keep track of the previous state and action to make this work
-
-    discount = 0.9  # non-step reward baseline
+    discount = 0.9
     if int(game.state / 100) == int(game.p_state / 100):
         game.learner[game.p_state][action] = -1
     elif reward == game.REWARD_OTHER:
         game.learner[game.p_state][action] = discount * max(game.learner[game.state])
     else:
         game.learner[game.p_state][action] = reward
-
-    print(f"game.learner[{game.p_state}][{action}] = {game.learner[game.p_state][action]}")
     return
 
 
@@ -246,7 +203,6 @@ def main(num_train_games, num_test_games):
     maze = setupMaze()
 
     for i in range(1, num_train_games + 1):
-        print(f"Training game {i}")
         initialize(game, maze, player, opponent)
         game_reward = 0.0
         while True:
@@ -259,11 +215,8 @@ def main(num_train_games, num_test_games):
             if reward != game.REWARD_OTHER:
                 break
 
-        print(f"Reward for training game {i} is {game_reward}")
-
     total_reward = 0
     for i in range(1, num_test_games + 1):
-        print(f"Test game {i}")
         initialize(game, maze, player, opponent)
         game_reward = 0.0
         while True:
@@ -274,12 +227,11 @@ def main(num_train_games, num_test_games):
             game.state = (1000 * player.x) + (100 * player.y) + (10 * opponent.x) + opponent.y
             if reward != game.REWARD_OTHER:
                 break
-        print(f"Reward for test game {i} is {game_reward}")
         total_reward = total_reward + game_reward
     print(f"Average test reward = {(total_reward / num_test_games)}")
 
 
 if len(sys.argv) != 3:
-    print("Useage: python SimpleMaze.py <numtraingames> <numtestgames>")
+    print("Usage: python SimpleMaze.py <numtraingames> <numtestgames>")
 else:
     main(int(sys.argv[1]), int(sys.argv[2]))
