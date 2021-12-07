@@ -59,7 +59,7 @@ def initialize(game, maze, player, opponent):
         if (maze[opponent.x, opponent.y] == 0) and ((opponent.x != player.x) or (opponent.y != player.y)):
             break
 
-    # initialize state number as concatenation of all coordinate numbers
+    # initialize state number
     game.state = (1000 * player.x) + (100 * player.y) + (10 * opponent.x) + opponent.y
     game.p_state = game.state
 
@@ -160,8 +160,11 @@ def show_maze(game, maze, player, opponent):
 
 
 def train_pick_action(game):
+    # pick a maximally valued move x percentage of the time
+    # otherwise pick randomly (exploration vs. exploitation)
+    pick_max_rate = 0.97
+
     while True:
-        pick_max_rate = 0.97
         lst = game.learner[game.state]
         max_ = max(lst)
         if random.random() < pick_max_rate:
@@ -170,26 +173,26 @@ def train_pick_action(game):
             the_action = random.randint(0, 4)
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
-
     return the_action
 
 
 def test_pick_action(game):
+    # pick a maximally valued move
     while True:
-        lst = game.learner[game.state]  # pick a random maximum
+        lst = game.learner[game.state]
         max_ = max(lst)
         the_action = random.choice([i for i in range(len(lst)) if lst[i] == max_])
         if (the_action >= game.MIN_ACTION) and (the_action <= game.MAX_ACTION):
             break
-
     return the_action
 
 
 def train_learner(game, action, reward):
+    # discount the maximum move for most steps
+    # allocate the immediate reward for win/loss steps
     discount = 0.9
-    if int(game.state / 100) == int(game.p_state / 100):
-        game.learner[game.p_state][action] = -1
-    elif reward == game.REWARD_OTHER:
+
+    if reward == game.REWARD_OTHER:
         game.learner[game.p_state][action] = discount * max(game.learner[game.state])
     else:
         game.learner[game.p_state][action] = reward
@@ -206,7 +209,7 @@ def main(num_train_games, num_test_games):
         initialize(game, maze, player, opponent)
         game_reward = 0.0
         while True:
-            action = train_pick_action(game, maze, player, opponent)
+            action = train_pick_action(game)
             reward = execute_action(game, maze, player, opponent, action)
             game_reward = game_reward + reward
             game.p_state = game.state
@@ -220,7 +223,7 @@ def main(num_train_games, num_test_games):
         initialize(game, maze, player, opponent)
         game_reward = 0.0
         while True:
-            action = test_pick_action(game, maze, player, opponent)
+            action = test_pick_action(game)
             reward = execute_action(game, maze, player, opponent, action)
             game_reward = game_reward + reward
             game.p_state = game.state
